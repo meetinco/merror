@@ -1,16 +1,24 @@
 ### Example
-```
-const MError = require('merror');
+err_code.js
+```javascript
+const code = {
+    INVALID_PRODUCT_ID: {
+        code: 3469,
+        message: '非法的商品ID'
+    }
+};
 
-const err = new MError(MError.HTTP_UNAUTHORIZED);
+module.exports = code;
+```
+
+index.js
+```javascript
+const ErrCode = './err_code';
+const MError = require('merror-meetin');
+MError.configErrorCode(ErrCode);
+
+const err = new MError(ErrCode.INVALID_PRODUCT_ID);
 console.log('code', err.code, err.debugMessage, err.message);
 ```
 
-### Files & Usage
-* index.js   
-    `index.js` exports the `MError` Class. You can use it directly.  
-    Also, you can append new error code. Reading the code wrote in `test/new_err`.   
-    And you maybe want to know how to defined new `Error Code`. See below.  
-    
-* error_code.js  
-    `error_code.js` exports `errorCode` and `defineCode`. If you want to know how to use it. Reading the code wrote in `test/new_code.js`.
+Read codes in `test` for more information.
