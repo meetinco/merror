@@ -1,6 +1,6 @@
 {
   "name": "merror-meetin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "custom error with code",
   "main": "index.js",
   "scripts": {

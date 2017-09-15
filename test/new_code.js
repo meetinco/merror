@@ -5,7 +5,7 @@
 const code = {
     INVALID_PRODUCT_ID: {
         code: 3469,
-        message: '非法的商品ID'
+        message: '非法的商品ID${1}'
     }
 };
 

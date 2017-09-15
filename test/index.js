@@ -9,7 +9,7 @@ MError.configErrorCode(newCode);
 exports.foo = () => {
     return Promise.resolve('')
         .then(() => {
-            throw new MError(newCode.INVALID_PRODUCT_ID);
+            throw new MError(newCode.INVALID_PRODUCT_ID).setMessageTemplateData(['被删除doc']);
         })
         .catch(MError.appendLine())
         .catch((err) => {
