@@ -1,5 +1,7 @@
 
-let errorCode = require('./error_code').errorCode;
+const utils = require('./utils');
+const errorCode = require('./error_code');
+const callerId = require('caller-id');
 /**
  * 自己的错误类。可以通过stack打印出堆栈信息。其中返回网页端的message会根据code自动设置好。成员如下：
  * {number} code 返回的json对象中的status.code值
@@ -11,12 +13,15 @@ let errorCode = require('./error_code').errorCode;
  */
 class MError extends Error {
     /**
-     * @param {number} code 返回的json对象中的status.code值，取值在下面维护
-     * @param {string | Error} debugMessage debug信息，在测试环境会替代message返回给网页端。也可以直接传一个Error对象进来，会复制它的message和stack
+     * @param {number | object} code 返回的json对象中的status.code值，取值在下面维护
+     * @param {string | Error, optional} debugMessage debug信息，在测试环境会替代message返回给网页端。也可以直接传一个Error对象进来，会复制它的message和stack
      * @param {number, optional} status http状态码。可不填，默认为200
      */
     constructor(code, debugMessage, status) {
-        super(errorCode.getCodeData(code).message);
+        if (typeof code === 'object') {
+            code = code.code;
+        }
+        super(utils.getCodeData(code).message);
         this.code = code !== undefined ? code : MError.UNKNOWN;
         if (debugMessage instanceof Error) {
             Object.defineProperty(this, 'stack', {
@@ -30,8 +35,6 @@ class MError extends Error {
             Error.captureStackTrace(this, MError);
             this.debugMessage = debugMessage !== undefined ? debugMessage : this.message;
         }
-        // 在前面追加行号信息
-        // this.debugMessage = formatErrorCodePos(gGetCodePosition(1)) + this.debugMessage;
         // 默认200表示这是一个已捕获的错误。500表示未捕获的原生Error
         this.status = status !== undefined ? status : 200;
     }
@@ -58,31 +61,6 @@ class MError extends Error {
     }
 
     /**
-     * 在promise的catch中使用，向MError的debugMessage前部添加代码行号信息。如果是Error则不做改变
-     * @param {boolean, optional} usePreviousCallPosition 是否调用该方法处更上一层调用处的行号。在universalHandler中用到
-     * @return {Function}
-     */
-    static prependCodeLine(usePreviousCallPosition) {
-        if (!gConfig.dev) {
-            return (err) => {
-                throw err;
-            };
-        }
-
-        const codePos = gGetCodePosition(usePreviousCallPosition ? 2 : 1);
-        return (err) => {
-            if (!(err instanceof Error)) {
-                console.log('不是Error对象');
-                return err;
-            }
-            if (err instanceof MError) {
-                err.debugMessage = formatErrorCodePos(codePos) + err.debugMessage;
-            }
-            throw err;
-        }
-    }
-
-    /**
      * 在promise的catch中使用，忽略掉指定的异常，让后续的then得以执行
      * @param {number} code 异常的错误码
      * @param {*,optional} returnValue 选填的返回值，会进入下一个then
@@ -98,26 +76,26 @@ class MError extends Error {
         }
     }
 
-    static configureErrorCode(codeConfig) {
-        errorCode = codeConfig;
-        joinErrorCode()
+    static configErrorCode(code) {
+        utils.configErrorCode(code)
     }
-}
 
-function formatErrorCodePos(codePos) {
-    return `at ${codePos.file}:${codePos.line} ${codePos.method}()\n`;
-}
-
-
-function joinErrorCode() {
-    for (const codeName in errorCode) {
-        if (errorCode.hasOwnProperty(codeName) && typeof errorCode[codeName] === 'number') {
-            MError[codeName] = errorCode[codeName];
+    static appendLine() {
+        const callerData = callerId.getData(MError.appendLine);
+        return (err) => {
+            if (!(err instanceof Error)) {
+                console.log('不是Error对象');
+                return err;
+            }
+            if (err instanceof MError) {
+                err.debugMessage = `${callerData.filePath}:${callerData.methodName}:${callerData.lineNumber}\n${err.debugMessage}`;
+            }
+            throw err;
         }
     }
 }
 
-joinErrorCode();
+MError.configErrorCode(errorCode);
 
 module.exports = MError;
 

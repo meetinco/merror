@@ -11,5 +11,8 @@
   ],
   "repository": "meetinco/merror",
   "author": "Nate",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "caller-id": "^0.1.0"
+  }
 }

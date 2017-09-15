@@ -2,7 +2,19 @@
  * Created by gukong on 2017/8/14.
  */
 
-const MError = require('./new_err');
+const newCode = require('./new_code');
+const MError = require('../index');
+MError.configErrorCode(newCode);
 
-const err = new MError(MError.HTTP_UNAUTHORIZED);
-console.log('code', err.code, err.debugMessage, err.message);
+exports.foo = () => {
+    return Promise.resolve('')
+        .then(() => {
+            throw new MError(newCode.INVALID_PRODUCT_ID);
+        })
+        .catch(MError.appendLine())
+        .catch((err) => {
+            console.log('code', err.debugMessage);
+        })
+}
+
+exports.foo()
