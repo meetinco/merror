@@ -80,8 +80,8 @@ class MError extends Error {
         utils.configErrorCode(code)
     }
 
-    static appendLine() {
-        const callerData = callerId.getData(MError.appendLine);
+    static prependCodeLine() {
+        const callerData = callerId.getData(MError.prependCodeLine);
         return (err) => {
             if (!(err instanceof Error)) {
                 console.log('不是Error对象');

@@ -40,7 +40,6 @@ exports.getCodeData = (code) => {
 };
 
 exports.configErrorCode = (code) => {
-    codeInfoMap = [];
     const keys = Object.keys(code);
     keys.forEach((key) => {
         const object = code[key];

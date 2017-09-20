@@ -11,7 +11,7 @@ exports.foo = () => {
         .then(() => {
             throw new MError(newCode.INVALID_PRODUCT_ID).setMessageTemplateData(['被删除doc']);
         })
-        .catch(MError.appendLine())
+        .catch(MError.prependCodeLine())
         .catch((err) => {
             console.log('code', err.debugMessage);
         })
