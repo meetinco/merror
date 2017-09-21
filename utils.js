@@ -12,7 +12,7 @@ let codeInfoMap = [];
  * @param {boolean, optional} fatal 是否是致命错误，默认为true。致命错误在测试环境会显示大红条提示
  * @return {number}
  */
-function defineCode(code, message, fatal) {
+exports.defineCode = (code, message, fatal) => {
     if (codeInfoMap[code]) {
         throw new Error(`重复的错误码:${code}`);
     }
@@ -37,14 +37,6 @@ exports.getCodeData = (code) => {
         message: DEFUALT_MESSAGE,
         fatal: true
     };
-};
-
-exports.configErrorCode = (code) => {
-    const keys = Object.keys(code);
-    keys.forEach((key) => {
-        const object = code[key];
-        defineCode(object.code, object.message, object.fatal)
-    })
 };
 
 exports.codeInfoMap = codeInfoMap;

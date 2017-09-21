@@ -77,7 +77,20 @@ class MError extends Error {
     }
 
     static configErrorCode(code) {
-        utils.configErrorCode(code)
+        const keys = Object.keys(code);
+        keys.forEach((key) => {
+            const object = code[key];
+            utils.defineCode(object.code, object.message, object.fatal);
+            if (this[key] === undefined) {
+                // this[key] = object.code;
+                Object.defineProperty(this, key, {
+                    value: object.code,
+                    writable : false
+                })
+            } else {
+                throw new Error(`重复的Key:${key}`);
+            }
+        })
     }
 
     static prependCodeLine() {
@@ -88,7 +101,7 @@ class MError extends Error {
                 return err;
             }
             if (err instanceof MError) {
-                err.debugMessage = `${callerData.filePath}:${callerData.methodName}:${callerData.lineNumber}\n${err.debugMessage}`;
+                err.debugMessage += `\n${callerData.filePath}:${callerData.methodName}:${callerData.lineNumber}`;
             }
             throw err;
         }
